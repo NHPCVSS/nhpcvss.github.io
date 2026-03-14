@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus: Step-by-Step Mastery</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 20px; color: #1e293b; }
+        .app-card { background: white; padding: 2.5rem; border-radius: 24px; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); width: 100%; max-width: 850px; }
+        h1 { text-align: center; margin-bottom: 0.5rem; color: #0f172a; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+        button { padding: 14px; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; transition: all 0.2s; font-size: 0.9rem; }
+        .rule-btn { background: #6366f1; color: white; }
+        .rule-btn:hover { background: #4f46e5; transform: translateY(-2px); }
+        .hint-btn { background: #38bdf8; color: white; flex: 1; }
+        .sol-btn { background: #fbbf24; color: white; flex: 1; }
+        
+        .simplify-btn { 
+            background: #ec4899; 
+            color: white; 
+            margin: 15px auto; 
+            padding: 10px 22px; 
+            display: none; 
+            width: auto; 
+            min-width: fit-content;
+        }
+        
+        .next-btn { background: #10b981; color: white; width: 100%; margin-top: 20px; }
+        .box { margin-top: 15px; padding: 20px; border-radius: 12px; display: none; }
+        #qBox { background: #f1f5f9; border: 2px solid #e2e8f0; display: block; text-align: center; font-size: 1.6rem; }
+        #hBox { background: #f0f9ff; border-left: 6px solid #38bdf8; color: #0369a1; line-height: 1.8; }
+        #sBox { background: #fffbeb; border-left: 6px solid #fbbf24; line-height: 2.4; overflow-x: auto; }
+        #simBox { background: #fdf2f8; border-left: 6px solid #ec4899; margin-top: 10px; line-height: 2.4; overflow-x: auto; }
+        .flex-row { display: flex; gap: 12px; margin-top: 15px; }
+        .center-wrapper { text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+     <h3 style="text-align: center;">Additional Mathematics</h3>
+     <h1>C12 Rules of Differentiation</h1>
+     <h2 style="text-align: center;">Self-directed Learning Module</h2>
+     <p style="text-align: center;""color: #64748b;">Master your skills in differentiating different functions using the basic rules of differentiation.</p>
+    <p style="text-align: center;""color: #64748b;">Learn how to simplify your derivatives after differentiating the functions.</p>
+    <div class="btn-grid">
+        <button class="rule-btn" onclick="generate('power')">Power Rule</button>
+        <button class="rule-btn" onclick="generate('chain')">Chain Rule</button>
+        <button class="rule-btn" onclick="generate('product')">Product Rule</button>
+        <button class="rule-btn" onclick="generate('quotient')">Quotient Rule</button>
+    </div>
+
+    <div class="box" id="qBox">Select a rule to begin...</div>
+
+    <div id="uiArea" style="display:none;">
+        <div class="flex-row">
+            <button class="hint-btn" onclick="toggle('hBox')">View Hint</button>
+            <button class="sol-btn" id="solBtn" onclick="revealDifferentiation()">View Differentiation</button>
+        </div>
+        <div class="box" id="hBox"></div>
+        <div class="box" id="sBox"></div>
+        
+        <div class="center-wrapper">
+            <button class="simplify-btn" id="simplifyBtn" onclick="toggle('simBox')">Click to show how to factorise and simplify the answer</button>
+        </div>
+        <div class="box" id="simBox"></div>
+
+        <button class="next-btn" id="nextBtn">Another Similar Qn</button>
+    </div>
+</div>
+
+<script>
+    let currentRule = "";
+
+    function toggle(id) {
+        const el = document.getElementById(id);
+        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function revealDifferentiation() {
+        const s = document.getElementById('sBox');
+        if(s.style.display === 'none' || s.style.display === '') {
+            s.style.display = 'block';
+            if (currentRule === 'product' || currentRule === 'quotient') {
+                document.getElementById('simplifyBtn').style.display = 'inline-block';
+            }
+        } else {
+            s.style.display = 'none';
+        }
+    }
+
+    function getIdx() {
+        const set = [
+            {tex: "2", val: 2}, {tex: "-1", val: -1},
+            {tex: "\\frac{1}{2}", val: 0.5}, {tex: "-\\frac{1}{2}", val: -0.5},
+            {tex: "\\frac{3}{2}", val: 1.5}
+        ];
+        return set[Math.floor(Math.random() * set.length)];
+    }
+
+    function fmt(v) {
+        const map = { "0.5":"\\frac{1}{2}", "-0.5":"-\\frac{1}{2}", "1.5":"\\frac{3}{2}", "-1.5":"-\\frac{3}{2}", "-2.5":"-\\frac{5}{2}", "2.5":"\\frac{5}{2}", "3":"3", "2":"2", "1":"1" };
+        return map[v.toString()] || (Number.isInteger(v) ? v.toString() : v.toFixed(1));
+    }
+
+    function generate(rule) {
+        currentRule = rule;
+        document.getElementById('uiArea').style.display = 'block';
+        document.getElementById('hBox').style.display = 'none';
+        document.getElementById('sBox').style.display = 'none';
+        document.getElementById('simBox').style.display = 'none';
+        document.getElementById('simplifyBtn').style.display = 'none'; 
+        document.getElementById('nextBtn').onclick = () => generate(rule);
+
+        const a = Math.floor(Math.random() * 4) + 2; 
+        const b = Math.floor(Math.random() * 4) + 1;
+        const n = getIdx();
+        const n1_val = n.val - 1;
+        const n1 = fmt(n1_val);
+        const v_base = `(${a}x + ${b})`;
+
+        let q = "", h = "", s = "", sim = "";
+
+        if (rule === 'power') {
+            q = `y = ${a}x^{${n.tex}}`;
+            h = `\\text{Power Rule: } \\frac{d}{dx}[x^n] = nx^{n-1}`;
+            s = `\\begin{aligned} \\frac{dy}{dx} = ${a} \\cdot (${n.tex})x^{${n.tex}-1} = ${a * n.val}x^{${n1}} \\end{aligned}`;
+        } 
+        else if (rule === 'chain') {
+            q = `y = ${v_base}^{${n.tex}}`;
+            h = `\\text{Chain Rule: } \\frac{dy}{dx} = n(u)^{n-1} \\cdot \\frac{du}{dx}`;
+            s = `\\begin{aligned} \\frac{dy}{dx} = ${n.tex}${v_base}^{${n1}} \\cdot (${a}) = ${a * n.val}${v_base}^{${n1}} \\end{aligned}`;
+        }
+        else if (rule === 'product') {
+            q = `y = x^{2}${v_base}^{${n.tex}}`;
+            h = `\\text{Product Rule Formula: } \\\\ \\frac{d}{dx}[uv] = uv' + vu'`;
+            let vp = a * n.val;
+            s = `\\begin{aligned} 
+                &u=x^2, v=${v_base}^{${n.tex}} \\implies u'=2x, v'=${vp}${v_base}^{${n1}} \\\\
+                &\\frac{dy}{dx} = (x^2)[${vp}${v_base}^{${n1}}] + (${v_base}^{${n.tex}})(2x) 
+                \\end{aligned}`;
+            sim = `\\begin{aligned} 
+                &\\text{1. Factor out lowest power } x${v_base}^{${n1}}: \\\\
+                &\\frac{dy}{dx} = x${v_base}^{${n1}} \\left[ ${vp}x + 2${v_base}^{1} \\right] \\\\
+                &\\text{2. Expand brackets and combine } x \\text{ terms:} \\\\
+                &\\frac{dy}{dx} = x${v_base}^{${n1}} \\left[ (${vp + 2*a})x + ${2*b} \\right]
+                \\end{aligned}`;
+        }
+        else if (rule === 'quotient') {
+            q = `y = \\frac{x}{${v_base}^{${n.tex}}}`;
+            h = `\\text{Quotient Rule Formula: } \\\\ \\frac{d}{dx}\\left[\\frac{u}{v}\\right] = \\frac{vu' - uv'}{v^2}`;
+            let vp = a * n.val;
+            let v_sq_val = n.val * 2;
+            let v_sq = fmt(v_sq_val);
+            let final_den = fmt(n.val + 1);
+
+            s = `\\begin{aligned} 
+                &u=x, v=${v_base}^{${n.tex}} \\implies u'=1, v'=${vp}${v_base}^{${n1}} \\\\
+                &\\frac{dy}{dx} = \\frac{(${v_base}^{${n.tex}})(1) - (x)(${vp}${v_base}^{${n1}})}{(${v_base}^{${n.tex}})^2} 
+                \\end{aligned}`;
+            sim = `\\begin{aligned} 
+                &\\text{1. Factor lowest power } ${v_base}^{${n1}} \\text{ from numerator:} \\\\
+                &\\frac{dy}{dx} = \\frac{${v_base}^{${n1}} \\left[ ${v_base}^{1} - ${vp}x \\right]}{${v_base}^{${v_sq}}} \\\\
+                &\\text{2. Subtract indices } \\left( \\frac{v^{${n1}}}{v^{${v_sq}}} = \\frac{1}{v^{${v_sq} - (${n1})}} \\right): \\\\
+                &\\frac{dy}{dx} = \\frac{${a}x + ${b} - ${vp}x}{${v_base}^{${final_den}}} \\\\
+                &\\text{3. Final simplified form:} \\\\
+                &\\frac{dy}{dx} = \\frac{(${a - vp})x + ${b}}{${v_base}^{${final_den}}}
+                \\end{aligned}`;
+        }
+
+        document.getElementById('qBox').innerHTML = `\\[ ${q} \\]`;
+        document.getElementById('hBox').innerHTML = `\\[ ${h} \\]`;
+        document.getElementById('sBox').innerHTML = `\\[ ${s} \\]`;
+        document.getElementById('simBox').innerHTML = `\\[ ${sim} \\]`;
+        renderMathInElement(document.body, { delimiters: [{left: "\\[", right: "\\]", display: true}] });
+    }
+</script>
+</body>
+</html>
